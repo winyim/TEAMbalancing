@@ -136,11 +136,11 @@ if st.button("Balance Teams"):
         df_teams_woman_clean = df_teams_woman.map(lambda x: x if x != "Empty" else None).dropna(how='all').dropna(axis=1, how='all').apply(lambda x: x.sort_values().values)
         
         # Display the results without "Empty" values
-        st.write("Balanced Teams:")
+        st.write("Teams:")
         st.dataframe(df_teams_clean)
-        st.write("Balanced open Teams:")
+        st.write("Open Players:")
         st.dataframe(df_teams_open_clean)
-        st.write("Balanced woman Teams:")
+        st.write("Womans Players:")
         st.dataframe(df_teams_woman_clean)
-        st.write("Average Skill Level for Each Team:")
+        st.write("Average Skill Level for each Team:")
         st.dataframe(df_avg_skill)
