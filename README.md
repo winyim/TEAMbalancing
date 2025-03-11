@@ -1,8 +1,8 @@
-# 🎈 Blank app template
+# Balanced Mixed Teams For Ultimate
 
-A simple Streamlit app template for you to modify!
+AThis app will take a list of players and attempt to make balanced evenly distributed teams taking into account skill level and preferred role.
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+[![Open in Streamlit](https://teambalancing.streamlit.app/)
 
 ### How to run it on your own machine
 
