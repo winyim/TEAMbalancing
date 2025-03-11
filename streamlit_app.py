@@ -3,8 +3,8 @@ import pandas as pd
 
 def balance_teams(players, num_teams):
     # Separate players by gender and role
-    males = [player for player in players if player[2] == 'male']
-    females = [player for player in players if player[2] == 'female']
+    opens = [player for player in players if player[2] == 'open']
+    womans = [player for player in players if player[2] == 'woman']
     
     # Separate players by role
     cutters = [player for player in players if player[3] == 'cutter']
@@ -12,8 +12,8 @@ def balance_teams(players, num_teams):
     hybrids = [player for player in players if player[3] == 'hybrid']
     
     # Sort by skill (descending)
-    males.sort(key=lambda x: x[1], reverse=True)
-    females.sort(key=lambda x: x[1], reverse=True)
+    opens.sort(key=lambda x: x[1], reverse=True)
+    womans.sort(key=lambda x: x[1], reverse=True)
     cutters.sort(key=lambda x: x[1], reverse=True)
     handlers.sort(key=lambda x: x[1], reverse=True)
     hybrids.sort(key=lambda x: x[1], reverse=True)
@@ -34,8 +34,8 @@ def balance_teams(players, num_teams):
                 skill_sums[team_index] += player[1]  # Update the skill sum for the chosen team
                 assigned_players.add(player)
 
-    # Distribute males and females (already balanced by gender)
-    assign_players(males + females)
+    # Distribute opens and womans (already balanced by gender)
+    assign_players(opens + womans)
     
     # Distribute cutters and handlers
     assign_players(cutters)
@@ -65,11 +65,15 @@ def calculate_avg_skill(teams):
         avg_skills.append(sum(skills) / len(skills) if skills else 0)
     return avg_skills
 
-# Streamlit UI
-st.title("Balanced Teams Generator")
+st.title("Balanced Mixed Teams For Ultimate")
 
-# Player input
-players_input = st.text_area("Enter players, their skill levels, gender, and role (space-delimited, e.g., John Doe 5 Male Cutter)", height=500)
+welcome = st.markdown('''This app will take a list of players and attempt to make balanced evenly distributed teams taking into account skill level and preferred role.
+                      ''')
+info = st.markdown('''Information needed (best to copy and paste from spreadsheet):  
+        player full name, their skill level (any integer), gender designation (open or woman), and role (cutter, handler or hybrid)''')
+
+players_input = st.text_area('''Enter information in a space-delimited format where every line is a different individual  
+                             (eg. John Doe 5 open cutter)''', height=500)
 
 # Parse input into list of players
 players = []
@@ -82,8 +86,8 @@ if players_input:
                 skill = int(parts[-3])
                 gender = parts[-2].lower()
                 role = parts[-1].lower()
-                if gender not in ['male', 'female']:
-                    st.error(f"Invalid gender in input: {parts[-2]}. Must be 'male' or 'female'.")
+                if gender not in ['open', 'woman']:
+                    st.error(f"Invalid gender in input: {parts[-2]}. Must be 'open' or 'woman'.")
                     continue
                 if role not in ['cutter', 'handler', 'hybrid']:
                     st.error(f"Invalid role in input: {parts[-1]}. Must be 'cutter', 'handler', or 'hybrid'.")
@@ -92,10 +96,10 @@ if players_input:
             except ValueError:
                 st.error(f"Invalid skill value for player: {' '.join(parts)}. Skill must be an integer.")
         else:
-            st.error(f"Invalid input format: {line}. Ensure the format is 'Name Skill Gender Role'.")
+            st.error(f"Invalid input format: {line}. Ensure the format is 'FirstName LastName Skill Gender Role'.")
 
 # Number of teams input
-num_teams = st.slider("Select number of teams", min_value=2, max_value=10, value=2)
+num_teams = st.slider("Select number of teams", min_value=2, max_value=15, value=2)
 
 # Balance button
 if st.button("Balance Teams"):
@@ -116,27 +120,27 @@ if st.button("Balance Teams"):
         
         avg_skill_data = {f"Team {i+1}": [avg_skill[i]] for i in range(num_teams)}
         
-        # Separate male and female players into different tables while maintaining None values
-        team_data_male = {f"Team {i+1}": [player[0] if player and player[2] == 'male' else "Empty" for player in teams[i]] for i in range(num_teams)}
-        team_data_female = {f"Team {i+1}": [player[0] if player and player[2] == 'female' else "Empty" for player in teams[i]] for i in range(num_teams)}
+        # Separate open and woman players into different tables while maintaining None values
+        team_data_open = {f"Team {i+1}": [player[0] if player and player[2] == 'open' else "Empty" for player in teams[i]] for i in range(num_teams)}
+        team_data_woman = {f"Team {i+1}": [player[0] if player and player[2] == 'woman' else "Empty" for player in teams[i]] for i in range(num_teams)}
         
         # Create the DataFrames
         df_teams = pd.DataFrame(team_data)
         df_avg_skill = pd.DataFrame(avg_skill_data)
-        df_teams_male = pd.DataFrame(team_data_male)
-        df_teams_female = pd.DataFrame(team_data_female)
+        df_teams_open = pd.DataFrame(team_data_open)
+        df_teams_woman = pd.DataFrame(team_data_woman)
         
         # Clean the DataFrames to remove any empty rows or columns
-        df_teams_clean = df_teams.applymap(lambda x: x if x != "Empty" else None).dropna(how='all').dropna(axis=1, how='all').reset_index(drop=True)
-        df_teams_male_clean = df_teams_male.applymap(lambda x: x if x != "Empty" else None).dropna(how='all').dropna(axis=1, how='all')
-        df_teams_female_clean = df_teams_female.applymap(lambda x: x if x != "Empty" else None).dropna(how='all').dropna(axis=1, how='all')
+        df_teams_clean = df_teams.map(lambda x: x if x != "Empty" else None).dropna(how='all').dropna(axis=1, how='all').reset_index(drop=True).apply(lambda x: x.sort_values().values)
+        df_teams_open_clean = df_teams_open.map(lambda x: x if x != "Empty" else None).dropna(how='all').dropna(axis=1, how='all').apply(lambda x: x.sort_values().values)
+        df_teams_woman_clean = df_teams_woman.map(lambda x: x if x != "Empty" else None).dropna(how='all').dropna(axis=1, how='all').apply(lambda x: x.sort_values().values)
         
         # Display the results without "Empty" values
         st.write("Balanced Teams:")
         st.dataframe(df_teams_clean)
-        st.write("Balanced Male Teams:")
-        st.dataframe(df_teams_male_clean)
-        st.write("Balanced Female Teams:")
-        st.dataframe(df_teams_female_clean)
+        st.write("Balanced open Teams:")
+        st.dataframe(df_teams_open_clean)
+        st.write("Balanced woman Teams:")
+        st.dataframe(df_teams_woman_clean)
         st.write("Average Skill Level for Each Team:")
         st.dataframe(df_avg_skill)
