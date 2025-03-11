@@ -2,7 +2,7 @@
 
 AThis app will take a list of players and attempt to make balanced evenly distributed teams taking into account skill level and preferred role.
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)]([(https://teambalancing.streamlit.app/)])
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://teambalancing.streamlit.app/)
 
 ### How to run it on your own machine
 
