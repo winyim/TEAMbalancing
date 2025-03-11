@@ -44,7 +44,7 @@ def calculate_avg_skill(teams):
     return avg_skills
 
 # Streamlit UI
-st.title("Balanced Teams Generator with Gender")
+st.title("Balanced Teams Generator")
 
 # Player input
 players_input = st.text_area("Enter players, their skill levels, and gender (space-delimited, e.g., John Doe 5 Male)")
